@@ -185,8 +185,8 @@ y01 = [0 1 0];
 [z01(1) z01(2) z01(3)] = sph2cart(theta, phi,1);
 
 
-% the inverse of this matrix can be used to get coords in x1y1z1 given
-% target in x0y0z0
+% the inverse of this matrix is a rotation matrix that can be used to get 
+% coords in x1y1z1 given target in x0y0z0
 rotmat = inv([x01' y01' z01']);
 
 
@@ -208,10 +208,11 @@ if ~isempty(dvintersect)
   Br = [-target(3)+dvintersect] / sin(phi);
 
   % x0y0 distance from target to Bregma plane
-  [B(:,1) B(:,2) B(:,3)] = sph2cart(theta,phi,Br);
+  [B(:,1), B(:,2), B(:,3)] = sph2cart(theta,phi,Br);
 
   % plus x0y0 distance to target
   B = bsxfun(@plus, B, target);
+  
 else
   B = [];
 end
