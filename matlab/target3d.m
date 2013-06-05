@@ -79,9 +79,7 @@ function [R, B] = target3d(target, armconfig, tilt, rot, dvintersect, quiet)
 % Tom Davidson (tjd@stanford.edu) 2010-2013
 
 % TODO: 
-%  -enforce that rot can only be [0,180]+/-45 for armconfig=FB,
-%   {90,270}+-45 for armconfig=LR (warn if >30).
-
+% -consider having armconfig as an output, not an input.
 
 %% Check inputs
 switch lower(armconfig)
