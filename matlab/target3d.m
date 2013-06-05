@@ -8,8 +8,8 @@ function [R, B] = target3d(target, armconfig, tilt, rot, dvintersect, quiet)
 %
 % There are many different conventions in use to describe an angle in 3
 % dimensions. Here, we specify the approach angle in terms of its tilt away
-% from vertical, and its rotation about the same vertical axis. (See 'tilt'
-% and 'rot' below for specifics).
+% from vertical, and its rotation about the same vertical axis. (See
+% INPUTS and EXAMPLES below for specifics).
 %
 % Note that many possible approach angles are awkward or infeasible using a
 % given stereotaxic apparatus and probe, so it is recommended that you
@@ -114,7 +114,7 @@ if tilt > 40
 end
 
 if mod (tilt * 360,pi) == 0 && tilt ~=0
-    warning('You specified ''tilt'' as a fraction of pi. Use degrees, not radians.');
+    warning('You specified ''tilt'' as a fraction of pi. ''tilt'' expects degrees, not radians.');
 end
 
 % Check rot inputs
@@ -123,7 +123,7 @@ if rot <= -360 || rot >=360
 end
 
 if mod (rot * 360,pi) == 0 && rot ~=0
-    warning('You specified ''rot'' as a fraction of pi. Use degrees, not radians.');
+    warning('You specified ''rot'' as a fraction of pi. ''rot'' expects degrees, not radians.');
 end
        
 % Confirm that the specified stereotax arm configuration is reasonable for
