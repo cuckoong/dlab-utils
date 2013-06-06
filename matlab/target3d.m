@@ -63,18 +63,19 @@ function [R, B] = target3d(target, armconfig, tilt, rot, dvintersect, quiet)
 %     -->R: +2.49 / +0.70 / -6.12 
 %
 %  To target a location at ML -2, AP -2, DV -3.1, with a stereotax arm 
-%  tilted 30 degrees forwards(i.e. leaning towards the animal's nose).
-%     R = target3d([-2 -2 -3.1], 'FB', 30, 0);
+%  tilted 30 degrees forwards, and rotated 20 degrees counter-clockwise 
+%  (i.e. the arm is leaning forward and towards the animal's left).
+%     R = target3d([-2 -2 -3.1], 'FB', 30, -20);
 %
-%     -->R: -2.00 / -0.21 / -3.58
+%     -->R: -2.78 / +0.63 / -3.58
 %
 %  Same target, also calculate the location of the intersection of the
 %  approach path with a plane slightly below bregma (e.g. for marking a 
 %  craniotomy site before tilting the arm:
-%     [R B] = target3d([-2 -2 -3.1], 'FB', 30, 0, -0.3);
+%     [R B] = target3d([-2 -2 -3.1], 'FB', 30, -20, -0.3);
 %
-%     -->R: -2.00 / -0.21 / -3.58
-%     -->B: -2.00 / -0.38 / -0.30
+%     -->R: -2.78 / +0.63 / -3.58
+%     -->B: -2.55 / -0.48 / -0.30
 %
 % Tom Davidson (tjd@stanford.edu) 2010-2013
 
