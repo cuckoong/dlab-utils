@@ -15,15 +15,22 @@ function [R, B] = target3d(target, armconfig, tilt, rot, dvintersect, quiet)
 % given stereotaxic apparatus and probe, so it is recommended that you
 % first 'rough out' the tilt and rotation that you would like to use to
 % reach your target, then use this code to generate precise coordinates.
+%
 % (Protip: you can use a second, untilted and unrotated arm to specify your
 % target location in space. See:
+%
 %  A. J. Greenshaw, J. Neurosci. Methods 78, 169?172 (1997))
 %
+% You can also use this method to do a real-world 'sanity check' of the 
+% outputs of this function.
+%
+% ******
 % N.B. All coordinates are given as [ML AP DV], relative to Bregma, where:
 %          ML (mediolateral): animal right is +ve
 %          AP (anteroposterior): anterior is +ve
 %          DV (dorsoventral): dorsal (up) is +ve
 % (Same order and sign as used by Kopf digital display)
+% ******
 %
 % INPUTS:
 %  target = [ML AP DV] atlas coordinates of target location.
@@ -37,7 +44,8 @@ function [R, B] = target3d(target, armconfig, tilt, rot, dvintersect, quiet)
 %
 %  rot = degrees of CW rotation of tilted DV axis away from animal nose.
 %        (I.e. 0 means arm tilts towards animals nose, 90 means arm tilts
-%        to the right, -90 (or 270) means arm tilts to the left.
+%        to the animal's right, -90 (or 270) means arm tilts to the 
+%        animal's left.)
 %
 % OPTIONAL INPUTS:
 %  dvintersect = DV heights (in old coordinates) at which to calculate
@@ -223,7 +231,7 @@ if ~quiet
     disp(sprintf('\nAll coords ML(Right+)/AP(Anterior+)/DV(Dorsal+), as on Kopf stereotax digital display.\n'));
     disp(sprintf('R (target location in new coords): %+0.2f / %+0.2f / %+0.2f \n', R));
     if ~isempty(B),
-      disp(sprintf('B (intersection with DV plane in old coords): %+0.2f / %+0.2f / %+0.2f \n', B'));
+      disp(sprintf('B (intersection with DV plane in unrotated coords): %+0.2f / %+0.2f / %+0.2f \n', B'));
     end
 end
 
