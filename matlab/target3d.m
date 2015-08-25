@@ -18,8 +18,7 @@ function [R, B] = target3d(target, armconfig, tilt, rot, dvintersect, quiet)
 %
 % (Protip: you can use a second, untilted and unrotated arm to specify your
 % target location in space. See:
-%
-%  A. J. Greenshaw, J. Neurosci. Methods 78, 169?172 (1997))
+%  A. J. Greenshaw, J. Neurosci. Methods 78, 169-172 (1997))
 %
 % You can also use this method to do a real-world 'sanity check' of the 
 % outputs of this function.
@@ -85,7 +84,7 @@ function [R, B] = target3d(target, armconfig, tilt, rot, dvintersect, quiet)
 %     -->R: -2.78 / +0.63 / -3.58
 %     -->B: -2.55 / -0.48 / -0.30
 %
-% Tom Davidson (tjd@stanford.edu) 2010-2013
+% Tom Davidson, Stanford University (tjd@alum.mit.edu) 2010-2015
 
 % TODO: 
 % -consider having armconfig as an output, not an input.
