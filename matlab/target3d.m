@@ -84,10 +84,13 @@ function [R, B] = target3d(target, armconfig, tilt, rot, dvintersect, quiet)
 %     -->R: -2.78 / +0.63 / -3.58
 %     -->B: -2.55 / -0.48 / -0.30
 %
-% Tom Davidson, Stanford University (tjd@alum.mit.edu) 2010-2015
-
-% TODO: 
-% -consider having armconfig as an output, not an input.
+%  Another target, with arm approaching the target from behind and to the
+%  right (i.e. arm tilted backwards).
+%     R = target3d([1.2 -1.3 -4.4],'FB',25,150);
+%
+%     -->R: +2.57 / -4.36 / -4.85
+%
+% Tom Davidson, Stanford University (tjd@alum.mit.edu) 2010-2016
 
 %% Check inputs
 switch lower(armconfig)
@@ -103,18 +106,22 @@ if ~exist('dvintersect', 'var')
     dvintersect = [];
 end
 
-
 if ~exist('quiet', 'var')
     quiet = false;
 end
 
+% Check target
+if target(3)>0
+    warning('''target'' specifies a location *above* bregma--use negative values to represent dorsal direction');
+end
+
 % Check tilt inputs
 if tilt < 0
-    error('''tilt'' parameter must be positive. Specify direction of tilting with ''rot'' parameter');
+    error('''tilt'' parameter must be positive. Specify direction of tilting with ''rot'' parameter. See help.');
 end
 
 if tilt >90
-    error('''tilt'' must be <90 degrees.');
+    error('''tilt'' must be <90 degrees. See help.');
 end
 
 if tilt > 40
@@ -127,65 +134,77 @@ end
 
 % Check rot inputs
 if rot <= -360 || rot >=360
-    error('Please specify a rotation ''rot'' between (-360,360) degrees');
+    error('Please specify a rotation ''rot'' between (-360,360) degrees. See help.');
 end
 
 if mod (rot * 360,pi) == 0 && rot ~=0
     warning('You specified ''rot'' as a fraction of pi. ''rot'' expects degrees, not radians.');
 end
-       
+
+% convert requested rotation to interval [0,360)
+rot = mod(rot,360);
+
 % Confirm that the specified stereotax arm configuration is reasonable for
 % the requested approach angle.
-if rot < 0,
-    rot = rot+360;
+
+if tilt ~=0
+    
+    arm_tilted_frontback = rot >315 || rot <45 || (rot > 135 && rot <225);
+    
+    if tiltLR
+        if arm_tilted_frontback
+            error('Stereotax arm configuration is wrong for requested approach: use ''FB'' (front-back) tilt instead');
+        end
+    else
+        if ~arm_tilted_frontback
+            error('Stereotax arm configuration is wrong for requested approach: use ''LR'' (left-right) tilt instead');
+        end
+    end
 end
 
-arm_tilted_frontback = rot >315 || rot <45 || (rot > 135 && rot <225);
-
-if tiltLR,
-    if arm_tilted_frontback
-        error('Stereotax arm configuration is wrong for requested approach: use ''FB'' (front-back) tilt instead');
-    end
-else
-    if ~arm_tilted_frontback
-        error('Stereotax arm configuration is wrong for requested approach: use ''LR'' (left-right) tilt instead');
-    end
-end
     
 
 %% Convert inputs to polar coordinates
 
 % Convert DV vector specified by 'tilt' and 'rot' to polar coordinates as
-% used by Matlab's built-in sph2cart: 
-%  phi = elevation of DV axis from x0y0 plane (i.e. from horizontal) 
+% used by Matlab's built-in sph2cart (theta, phi, rho): 
 %  theta = CCW rotation of DV axis in x0y0 plane away from positive 'X' 
 %        (i.e. animal right=0, nose=90)
-phi = sub_deg2rad(-tilt+90);
-theta = sub_deg2rad(-rot+90);
+%  phi = elevation of DV axis from x0y0 plane (i.e. from horizontal) 
+theta = sub_deg2rad(-rot+90); % theta on (-3/2 * pi, pi/2]
+phi = sub_deg2rad(-tilt+90); % phi on [0 pi/2];
 
+theta = mod(theta,2*pi);
+phi = mod(phi,2*pi);
 
 %% Calculate rotation matrix
 
-% Specify x1 (ML) vector in x0y0z0 space
+% Specify x1 (new ML) vector in x0y0z0 space
 
 if tiltLR, % Tilt Left-Right  case:
     % Relative to DV, rotation (theta) is same, tilt (phi) is 90deg CW
     [x01(1) x01(2) x01(3)] = sph2cart(theta, phi-pi/2,1);
 
 else % Tilt Front-Back case
-    % ML not tilted (phi=0); rotation (theta) 90deg CW relative to DV axis
+    
+    % When knuckle is configured for 'FB', tilt is about the ML axis, so 
+    % 'tilt'/phi does not affect the ML axis vector. (i.e. movements in ML 
+    % are in the x0y0 plane).
+    
+    % New ML axis rotation (theta) is 90deg CW relative to the rotation of
+    % the DV axis. ML axis not tilted (phi=0);
     [x01(1) x01(2) x01(3)] = sph2cart(theta-pi/2, 0, 1);
-
+        
 end
 
+% Specify y1 (new AP) vector in x0y0z0 space 
 
-% Specify y1 (AP) vector in x0y0z0 space 
-
-% (AP stereotax axis can't tilt or rotate)
+% (AP stereotax axis can't tilt or rotate, so y01 is still the unit vector 
+% along the y-axis)
 y01 = [0 1 0];
 
 
-% Specify z1 (DV) vector in x0y0z0 space 
+% Specify z1 (new DV) vector in x0y0z0 space 
 
 % (tilted, rotated as per inputs)
 [z01(1) z01(2) z01(3)] = sph2cart(theta, phi,1);
