@@ -162,7 +162,24 @@ if tilt ~=0
     end
 end
 
+%% Handle 'backward' tilts
+
+% For consistency, backward tilt is represented as an arm rotation near 180
+% degrees from the animal's nose, but we actually implement it by tilting
+% the arm backwards and rotating by 180 degrees less than the 'rot'
+% argument. This results in ML-positive on the stereotax display being
+% towards the animal's right, for both forward and backward tilt, so we
+% need to correct for it here. (Could equivalently correct for this by
+% flipping sign of output, or rotating x1)
+
+if (rot>90 && rot<270), % 'backward' tilt
+    tilt = -tilt;
+    rot = rot-180;
     
+    % convert to interval [0,360)
+    rot = mod(rot,360);
+end
+
 
 %% Convert inputs to polar coordinates
 
