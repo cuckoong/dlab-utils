@@ -92,6 +92,8 @@ function [R, B] = target3d(target, armconfig, tilt, rot, dvintersect, quiet)
 %
 % Tom Davidson, Stanford University (tjd@alum.mit.edu) 2010-2016
 
+% TODO: Make sterotax arm config an output
+
 %% Check inputs
 switch lower(armconfig)
     case 'lr'
@@ -162,17 +164,28 @@ if tilt ~=0
     end
 end
 
-%% Handle 'backward' tilts
+%% Handle 'backward'/'leftward' tilts
 
-% For consistency, backward tilt is represented as an arm rotation near 180
-% degrees from the animal's nose, but we actually implement it by tilting
-% the arm backwards and rotating by 180 degrees less than the 'rot'
-% argument. This results in ML-positive on the stereotax display being
-% towards the animal's right, for both forward and backward tilt, so we
-% need to correct for it here. (Could equivalently correct for this by
-% flipping sign of output, or rotating x1)
+% While we use spherical coordinates to specify the angle of approach for
+% targeting, we do not actually rotate stereotax arms through 360 degrees
+% to achieve this targeting.
+%
+% For instance, when approaching the target with a 10-degree left tilt
+% (tilt = 10, rot = 270), we do not tilt the arm by 10 degrees forward then
+% rotate it through 270 degrees. Instead, we just tilt the arm leftwards.
+% However this results in ML-positive on the stereotax display being
+% towards the animal's right, even though in our rotated coordinates,
+% traveling in the positive direction ML should move left.
+%
+% (Similarly, when the arm is configured for front-back tilt, we implement 
+% backwards tilts by tilting the arm backwards, and not by tilting forwards
+% then rotating the arm through 180 degrees)
+% 
+% We correct for both these cases here. (NB, we could equivalently correct 
+% for this just by flipping sign of ML output, or rotating x1)
 
-if (rot>90 && rot<270), % 'backward' tilt
+if (~tiltLR && rot>90 && rot<270) || ... % 'backward' tilt
+   (tiltLR && rot>180) % 'leftward' tilt
     tilt = -tilt;
     rot = rot-180;
     
@@ -180,6 +193,11 @@ if (rot>90 && rot<270), % 'backward' tilt
     rot = mod(rot,360);
 end
 
+%% Handle tilts towards animal
+
+% Typically, on a stereotax with an arm on either side of the animal the
+% user chooses to use the arm on the side that allows the arm to tilt away
+% from the animal. When this is not done, 
 
 %% Convert inputs to polar coordinates
 
